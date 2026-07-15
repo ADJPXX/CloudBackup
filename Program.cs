@@ -20,7 +20,7 @@ public static class Program
     
     private const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
     
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         if (!IsAdmin())
         {
@@ -63,15 +63,22 @@ public static class Program
             Console.WriteLine(ex.Message);
         }
         
-        var resultado = FazerBackupNuvem();
+        var resultado = await FazerBackupNuvem();
         
         Console.WriteLine(resultado);
     }
 
-    private static string FazerBackupNuvem()
+    private static async Task<string> FazerBackupNuvem()
     {
         try
         {
+            var drivePronto = await EsperarDriveNuvem(@"G:\");
+
+            if (!drivePronto)
+            {
+                return "Drive não encontrado para backup na nuvem";
+            }
+            
             foreach (var directory in Directory.GetDirectories(BackupDriveLetter))
             {
                 foreach (var dir in _config!.CloudBackupFolders)
@@ -94,7 +101,7 @@ public static class Program
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
 
-                    backupNuvem?.WaitForExit();
+                    await backupNuvem?.WaitForExitAsync()!;
                 }
             }
 
@@ -107,5 +114,19 @@ public static class Program
         }
     }
 
-    
+
+    private static async Task<bool> EsperarDriveNuvem(string drive, int tentativas = 10)
+    {
+        for (var i = 0; i < tentativas; i++)
+        {
+            if (Directory.Exists(drive))
+            {
+                return true;
+            }
+
+            await Task.Delay(5000);
+        }
+
+        return false;
+    }
 }
