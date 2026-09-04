@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
+using System.Text;
 using System.Text.Json;
 
 namespace CloudBackup;
@@ -10,7 +11,7 @@ public static class Program
     
     private const string BackupDrive = @"D:\Backups\";
     
-    private const string BackupCodigos = @"D:\Codigos\";
+    private const string BackupCodes = @"D:\Codigos\";
     
     private const string BackupDriveLetter = @"D:\";
     
@@ -18,7 +19,7 @@ public static class Program
     
     private const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
     
-    private static readonly string TudoExiste = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+    private static readonly string TudoExists = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
     
     public static async Task Main(string[] args)
     {
@@ -30,13 +31,13 @@ public static class Program
 
         LerJson();
         
-        var backupDrive = await FazerBackupAsync();
+        var backupDrive = MakeDriveBackup();
         
         Console.WriteLine(backupDrive);
-
-        if (backupDrive.Contains("BACKUP FEITO"))
+        
+        if (backupDrive.ToString().Contains("BACKUP CONCLUIDO."))
         {
-            var backupNuvem = await FazerBackupNuvemAsync();
+            var backupNuvem = MakeCloudBackup();
         
             Console.WriteLine(backupNuvem);
         }
@@ -47,117 +48,226 @@ public static class Program
     }
 
 
-    private static async Task<string> FazerBackupAsync()
+    private static StringBuilder MakeDriveBackup()
     {
+        var log = new StringBuilder();
+        
         try
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            
+
             var repositoriesPath = Path.Combine(DevDrive, "Repositories");
-            
-            var excludedFolders = string.Join(' ', _config!.ExcludedFolders.Select(folder => $"\"{folder}\""));
+
+            var excludedFolders = string.Join(' ', _config.ExcludedFolders.Select(folder => $"\"{folder}\""));
             
             foreach (var directory in Directory.GetDirectories(documents))
             {
                 foreach (var dir in _config.BackupFolders)
                 {
                     if (!Path.GetFileName(directory).Equals(dir, StringComparison.OrdinalIgnoreCase))
+                    {
                         continue;
+                    }
 
-                    var nomePasta = Path.GetFileName(directory);
+                    var folderName = Path.GetFileName(directory);
 
+                    if (folderName.Contains("My Games"))
+                    {
+                        var rocketLeagueSource = Path.Combine(documents, "My Games", "Rocket League");
+
+                        var rocketLeagueDestination = Path.Combine(BackupDrive, "My Games", "Rocket League");
+                        
+                        var rocketLeagueBackup = Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "robocopy",
+                            Arguments = $"\"{rocketLeagueSource}\" \"{rocketLeagueDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        });
+                        
+                        rocketLeagueBackup?.WaitForExit();
+
+                        continue;
+                    }
+                    
                     var documentsBackup = Process.Start(new ProcessStartInfo
                     {
                         FileName = "robocopy",
                         Arguments =
-                            $"\"{directory}\" \"{BackupDrive}{nomePasta}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
+                            $"\"{directory}\" \"{BackupDrive}{folderName}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
 
-                    await documentsBackup?.WaitForExitAsync()!;
+                    documentsBackup?.WaitForExit();
 
                     if (documentsBackup is { ExitCode: > 3 })
                     {
-                        Console.WriteLine($"Erro ao copiar: {directory}");
+                        log.AppendLine($"Erro ao copiar: {directory}");
                     }
                 }
             }
 
-            if (Directory.Exists(repositoriesPath))
+            if (!Directory.Exists(repositoriesPath))
+            {
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {repositoriesPath}");
+            }
+            else
             {
                 foreach (var directory in Directory.GetDirectories(repositoriesPath))
                 {
-                    var nomePasta = Path.GetFileName(directory);
+                    var folderName = Path.GetFileName(directory);
 
                     var repositories = Process.Start(new ProcessStartInfo
                     {
                         FileName = "robocopy",
-                        Arguments = $"\"{directory}\" \"{BackupCodigos}{nomePasta}\" /E /COPY:DAT /R:3 /W:5",
+                        Arguments = $"\"{directory}\" \"{BackupCodes}{folderName}\" /E /COPY:DAT /R:3 /W:5",
                         UseShellExecute = false,
                         CreateNoWindow = true,
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
 
-                    await repositories?.WaitForExitAsync()!;
+                    repositories?.WaitForExit();
 
                     if (repositories is { ExitCode: > 3 })
                     {
-                        Console.WriteLine($"Erro ao copiar repo: {directory}");
+                        log.AppendLine($"Erro ao copiar repo: {directory}");
                     }
                 }
 
-                var publishOrigem = Path.Combine(DevDrive, "Repositories", "C#");
+                var publishSource = Path.Combine(DevDrive, "Repositories", "C#");
 
-                var publishDestino = Path.Combine(BackupCodigos, "C#");
+                var publishDestination = Path.Combine(BackupCodes, "C#");
 
                 var publishBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{publishOrigem}\" \"{publishDestino}\" publish.txt /COPY:DAT /R:3 /W:5",
+                    Arguments = $"\"{publishSource}\" \"{publishDestination}\" publish.txt /COPY:DAT /R:3 /W:5",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden
                 });
 
-                await publishBackup?.WaitForExitAsync()!;
-            }
-            
-            if (Directory.Exists(TudoExiste))
-            {
-                var tudoDestino = Path.Combine(BackupDriveLetter, "Backups", "TUDO");
-                
-                var downloadsBackup = Process.Start(new ProcessStartInfo
+                publishBackup?.WaitForExit();
+
+                var dotGithubSource = Path.Combine(DevDrive, "Repositories", "C#", ".github");
+
+                var dotGithubDestination = Path.Combine(BackupCodes, "C#", ".github");
+
+                var dotGithubBackup = Process.Start(new ProcessStartInfo
                 {
                     FileName = "robocopy",
-                    Arguments = $"\"{TudoExiste}\" \"{tudoDestino}\" /E /COPY:DAT /R:3 /W:5",
+                    Arguments = $"\"{dotGithubSource}\" \"{dotGithubDestination}\" /E /COPY:DAT /R:3 /W:5",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden
                 });
-                
-                await downloadsBackup?.WaitForExitAsync()!;
+
+                dotGithubBackup?.WaitForExit();
+            }
+
+            var davinciSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
+
+            var davinciDestination = Path.Combine(BackupDrive, "DaVinci Resolve", "Blackmagic Design");
+
+            if (Directory.Exists(davinciSource))
+            {
+                var davinciBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{davinciSource}\" \"{davinciDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                davinciBackup?.WaitForExit();
             }
             else
             {
-                Console.WriteLine("NÃO CONTEM A PASTA \"TUDO\"");
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {davinciSource}");
             }
 
-            return "BACKUP FEITO DE TODOS OS ARQUIVOS";
+            var obsSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
+
+            var obsDestination = Path.Combine(BackupDrive, "obs-studio");
+
+            if (Directory.Exists(obsSource))
+            {
+                var obsBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{obsSource}\" \"{obsDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                obsBackup?.WaitForExit();
+            }
+            else
+            {
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {obsSource}");
+            }
+
+            var duckStationSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
+
+            var duckStationDestination = Path.Combine(BackupDrive, "DuckStation");
+
+            if (Directory.Exists(duckStationSource))
+            {
+                var duckStationBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{duckStationSource}\" \"{duckStationDestination}\" /E /COPY:DAT /XD {excludedFolders} /R:3 /W:5",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                duckStationBackup?.WaitForExit();
+            }
+            else
+            {
+                log.AppendLine($"A SEGUINTE PASTA NÃO FOI ENCONTRADA: {duckStationSource}");
+            }
+            
+            if (Directory.Exists(TudoExists))
+            {
+                var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+
+                var downloadsBackup = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "robocopy",
+                    Arguments = $"\"{downloadsPath}\" \"{BackupDriveLetter}Backups\\TUDO\" /E /MOVE /R:3 /W:5",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                downloadsBackup?.WaitForExit();
+            }
+            else
+            {
+                log.AppendLine($"NÃO CONTEM A PASTA \"TUDO\" NO SEGUINTE CAMINHO: {TudoExists}");
+            }
+            
+            return log.AppendLine("BACKUP CONCLUIDO.");
         }
         catch (Exception ex)
         {
-            return $"ERRO: {ex.Message}";
+            return log.AppendLine($"ERRO: {ex.Message}");
         }
     }
     
 
-    private static async Task<string> FazerBackupNuvemAsync()
+    private static string MakeCloudBackup()
     {
         try
         {
-            var drivePronto = await EsperarDriveNuvem(@"G:\");
+            var drivePronto = EsperarDriveNuvem(@"G:\");
 
             if (!drivePronto)
             {
@@ -186,7 +296,7 @@ public static class Program
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
 
-                    await backupNuvem?.WaitForExitAsync()!;
+                    backupNuvem?.WaitForExitAsync();
                 }
             }
 
@@ -200,7 +310,7 @@ public static class Program
     }
 
     
-    private static async Task<bool> EsperarDriveNuvem(string drive, int tentativas = 10)
+    private static bool EsperarDriveNuvem(string drive, int tentativas = 10)
     {
         for (var i = 0; i < tentativas; i++)
         {
@@ -209,7 +319,7 @@ public static class Program
                 return true;
             }
 
-            await Task.Delay(5000);
+            Thread.Sleep(5000);
         }
 
         return false;
