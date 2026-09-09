@@ -20,7 +20,7 @@ public static class Program
         
         Console.WriteLine(backupDrive);
         
-        if (backupDrive.ToString().Contains("BACKUP CONCLUIDO."))
+        if (backupDrive.Item2)
         {
             var backupNuvem = await CloudBackupService.MakeCloudBackupAsync();
         

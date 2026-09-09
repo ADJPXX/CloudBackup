@@ -13,7 +13,9 @@ public static class RobocopyService
                 FileName = "robocopy",
                 Arguments = arguments,
                 UseShellExecute = false,
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             });
 
             var error = await backup?.StandardError.ReadToEndAsync()!;

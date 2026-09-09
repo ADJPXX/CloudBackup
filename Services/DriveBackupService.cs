@@ -4,7 +4,7 @@ namespace CloudBackup.Services;
 
 public static class DriveBackupService
 {
-    public static async Task<StringBuilder> MakeDriveBackupAsync()
+    public static async Task<(StringBuilder, bool)> MakeDriveBackupAsync()
     {
         var log = new StringBuilder();
         
@@ -32,11 +32,11 @@ public static class DriveBackupService
             
             LogService.EndExecution();
             
-            return log;
+            return (log, true);
         }
         catch (Exception ex)
         {
-            return log.AppendLine($"ERRO NA FUNÇÃO \"MakeDriveBackupAsync()\": {ex.Message}");
+            return (log.AppendLine($"ERRO NA FUNÇÃO \"MakeDriveBackupAsync()\": {ex.Message}"), false);
         }
     }
 

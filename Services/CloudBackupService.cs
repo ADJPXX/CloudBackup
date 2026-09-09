@@ -14,7 +14,7 @@ public static class CloudBackupService
             
             if (!Directory.Exists(PathsService.CloudBackup))
             {
-                var isDriveReady = WaitCloudDrive(PathsService.CloudBackup);
+                var isDriveReady = await WaitCloudDrive(PathsService.CloudBackup);
 
                 if (!isDriveReady)
                 {
@@ -70,7 +70,7 @@ public static class CloudBackupService
     }
     
     
-    private static bool WaitCloudDrive(string drive, int tentativas = 10)
+    private static async Task<bool> WaitCloudDrive(string drive, int tentativas = 10)
     {
         for (var i = 0; i < tentativas; i++)
         {
@@ -79,7 +79,7 @@ public static class CloudBackupService
                 return true;
             }
 
-            Thread.Sleep(5000);
+            await Task.Delay(5000);
         }
 
         return false;
