@@ -74,12 +74,12 @@ public static class CloudBackupService
     {
         for (var i = 0; i < tentativas; i++)
         {
+            await Task.Delay(18000);
+            
             if (Directory.Exists(drive))
             {
                 return true;
             }
-
-            await Task.Delay(5000);
         }
 
         return false;
