@@ -6,6 +6,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
+        <DebugType>None</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+
         <ApplicationIcon>Resources\backup.ico</ApplicationIcon>
     </PropertyGroup>
 
