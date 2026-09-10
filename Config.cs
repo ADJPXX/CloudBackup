@@ -19,6 +19,8 @@ public class ConfigDto
     public List<string> BackupFolders { get; init; } = [];
 
     public List<string> CloudBackupFolders { get; init; } = [];
+    
+    public string CloudBackupPath { get; init; } = string.Empty;
 
     public List<string> ExcludedFolders { get; init; } = [];
 }

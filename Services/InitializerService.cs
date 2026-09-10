@@ -73,6 +73,9 @@ public static class InitializerService
                     "Vídeos",
                     "Wallpapers"
                 ],
+                
+                
+                CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
 
 
                 ExcludedFolders =

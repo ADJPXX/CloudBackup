@@ -2,8 +2,6 @@
 
 public static class PathsService
 {
-    public const string CloudBackup = @"G:\Meu Drive\BackupCloud\";
-
     private const string DevDrive = @"E:\";
     
     public const string BackupDriveLetter = @"D:\";
