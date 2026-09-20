@@ -26,6 +26,8 @@ public static class DriveBackupService
 
             await TarkovBackupAsync(log);
 
+            await TudoBackupAsync(log);
+
             log.AppendLine("BACKUP CONCLUIDO");
             
             LogService.AddLog("BACKUP CONCLUIDO");
@@ -344,6 +346,39 @@ public static class DriveBackupService
         catch (Exception ex)
         {
             log.AppendLine($"ERRO NA FUNÇÃO \"TarkovBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task TudoBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (Directory.Exists(PathsService.TudoInDownloads))
+            {
+                var tudoCopiedStatus = await RobocopyService.CopyAsync($"\"{PathsService.TudoInDownloads}\" \"{PathsService.TudoCopied}\" /E /COPY:DAT /R:3 /W:5");
+
+                LogService.AddLog($"TUDO copiado STATUS: {tudoCopiedStatus.Item1}");
+
+                log.AppendLine($"TUDO copiado STATUS: {tudoCopiedStatus.Item1}");
+
+                if (!string.IsNullOrEmpty(tudoCopiedStatus.Item2))
+                {
+                    LogService.AddLog($"TUDO copiado STATUS: {tudoCopiedStatus.Item2}");
+
+                    log.AppendLine($"TUDO copiado STATUS: {tudoCopiedStatus.Item2}");
+                }
+            }
+            else
+            {
+                LogService.AddLog($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDownloads}");
+
+                log.AppendLine($"A PASTA \"TUDO\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.TudoInDownloads}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"TudoBackupAsync()\": {ex.Message}");
         }
     }
 }

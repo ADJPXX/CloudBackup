@@ -45,6 +45,10 @@ public static class PathsService
     public static readonly string DavinciSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Blackmagic Design");
 
     public static readonly string DavinciDestination = Path.Combine(BackupDrive, "DaVinci Resolve", "Blackmagic Design");
+
+    public static readonly string TudoInDownloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "TUDO");
+
+    public static readonly string TudoCopied = Path.Combine(BackupDrive, "TUDO");
     
     public static readonly string ObsSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "obs-studio");
 
