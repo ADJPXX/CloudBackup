@@ -16,13 +16,28 @@ public static class PathsService
 
     public static readonly string LogPath = Path.Combine(ExeDirectory, "CloudBackup.log");
     
-    public static readonly string ExcludedFolders = string.Join(' ', Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\""));
+    public static string ExcludedFolders
+    {
+        get
+        {
+            var result = string.Join(
+                ' ',
+                Config.Configs.ExcludedFolders.Select(folder => $"\"{folder}\"")
+            );
+
+            return result;
+        }
+    }
     
     public static readonly string Documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
     public static readonly string CsInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Counter-Strike Global Offensive", "game", "csgo", "cfg");
 
     public static readonly string CsInD = Path.Combine(BackupDrive, "CS", "CFGS");
+
+    public static readonly string LmuInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Le Mans Ultimate", "UserData");
+
+    public static readonly string LmuInD = Path.Combine(BackupDrive, "LMU", "UserData");
 
     public static readonly string TarkovInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Battlestate Games", "Escape from Tarkov", "Settings");
 
@@ -57,4 +72,16 @@ public static class PathsService
     public static readonly string DuckStationSource = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DuckStation");
 
     public static readonly string DuckStationDestination = Path.Combine(BackupDrive, "DuckStation");
+
+    public static readonly string AfterburnerInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "MSI Afterburner", "Profiles");
+
+    public static readonly string AfterburnerInD = Path.Combine(BackupDrive, "Afterburner", "Profiles");
+
+    public static readonly string RivaProfilesInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "RivaTuner Statistics Server", "Profiles");
+
+    public static readonly string RivaProfilesInD = Path.Combine(BackupDrive, "Riva", "Profiles");
+
+    public static readonly string RivaPluginsInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "RivaTuner Statistics Server", "Plugins");
+
+    public static readonly string RivaPluginsInD = Path.Combine(BackupDrive, "Riva", "Plugins");
 }

@@ -11,10 +11,10 @@ public static class Program
             InitializerService.ElevateToAdmin();
             return;
         }
-        
-        InitializerService.CheckLogFile();
 
         InitializerService.ReadJson();
+
+        InitializerService.CheckLogFile();
         
         var backupDrive = await DriveBackupService.MakeDriveBackupAsync();
         
