@@ -28,6 +28,8 @@ public static class DriveBackupService
 
             await LmuBackupAsync(log);
 
+            await RaceLabBackupAsync(log);
+
             await TarkovBackupAsync(log);
 
             await AfterburnerBackupAsync(log);
@@ -388,6 +390,39 @@ public static class DriveBackupService
         catch (Exception ex)
         {
             log.AppendLine($"ERRO NA FUNÇÃO \"LmuBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task RaceLabBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.RaceLabInC))
+            {
+                LogService.AddLog($"A PASTA \"racelabapps\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RaceLabInC}");
+
+                log.AppendLine($"A PASTA \"racelabapps\" NÃO FOI ENCONTRADA NO CAMINHO: {PathsService.RaceLabInC}");
+
+                return;
+            }
+
+            var raceLabStatus = await RobocopyService.CopyAsync($"\"{PathsService.RaceLabInC}\" \"{PathsService.RaceLabInD}\" *.json /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+            LogService.AddLog($"RaceLabAppData STATUS: {raceLabStatus.Item1}");
+
+            log.AppendLine($"RaceLabAppData STATUS: {raceLabStatus.Item1}");
+
+            if (!string.IsNullOrEmpty(raceLabStatus.Item2))
+            {
+                LogService.AddLog($"RaceLabAppData ERRO: {raceLabStatus.Item2}");
+
+                log.AppendLine($"RaceLabAppData ERRO: {raceLabStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"RaceLabBackupAsync()\": {ex.Message}");
         }
     }
 

@@ -47,7 +47,6 @@ public static class InitializerService
         {
             var configs = new ConfigDto
             {
-                
                 BackupFolders =
                 [
                     "AC Content Manager",
@@ -56,9 +55,9 @@ public static class InitializerService
                     "Automobilista 2",
                     "iRacing",
                     "My Games",
-                    "PCSX2"
+                    "PCSX2",
+                    "RaceLabApps"
                 ],
-
 
                 CloudBackupFolders =
                 [
@@ -73,10 +72,8 @@ public static class InitializerService
                     "Vídeos",
                     "Wallpapers"
                 ],
-                
-                
-                CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
 
+                CloudBackupPath = @"G:\Meu Drive\BackupCloud\",
 
                 ExcludedFolders =
                 [

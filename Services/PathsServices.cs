@@ -40,6 +40,10 @@ public static class PathsService
 
     public static readonly string LmuInD = Path.Combine(BackupDrive, "LMU", "UserData");
 
+    public static readonly string RaceLabInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "racelabapps");
+
+    public static readonly string RaceLabInD = Path.Combine(BackupDrive, "RaceLabAppData", "racelabapps");
+
     public static readonly string TarkovInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Battlestate Games", "Escape from Tarkov", "Settings");
 
     public static readonly string TarkovInD = Path.Combine(BackupDrive, "Tarkov");
