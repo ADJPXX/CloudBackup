@@ -36,6 +36,10 @@ public static class PathsService
 
     public static readonly string CsInD = Path.Combine(BackupDrive, "CS", "CFGS");
 
+    public static readonly string IracingInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "iRacing");
+
+    public static readonly string IracingInD = Path.Combine(BackupDrive, "iRacingLocal");
+
     public static readonly string LmuInC = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam", "steamapps", "common", "Le Mans Ultimate", "UserData");
 
     public static readonly string LmuInD = Path.Combine(BackupDrive, "LMU", "UserData");

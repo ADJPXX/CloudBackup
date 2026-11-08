@@ -26,6 +26,8 @@ public static class DriveBackupService
 
             await CsBackupAsync(log);
 
+            await IracingBackupAsync(log);
+
             await LmuBackupAsync(log);
 
             await RaceLabBackupAsync(log);
@@ -357,6 +359,39 @@ public static class DriveBackupService
         catch (Exception ex)
         {
             log.AppendLine($"ERRO NA FUNÇÃO \"CSBackupAsync()\": {ex.Message}");
+        }
+    }
+
+
+    private static async Task IracingBackupAsync(StringBuilder log)
+    {
+        try
+        {
+            if (!Directory.Exists(PathsService.IracingInC))
+            {
+                LogService.AddLog($"O ARQUIVO \"_useSteam.txt\" NÃO FOI ENCONTRADO NO CAMINHO: {PathsService.IracingInC}");
+
+                log.AppendLine($"O ARQUIVO \"_useSteam.txt\" NÃO FOI ENCONTRADO NO CAMINHO: {PathsService.IracingInC}");
+
+                return;
+            }
+
+            var lmuStatus = await RobocopyService.CopyAsync($"\"{PathsService.IracingInC}\" \"{PathsService.IracingInD}\" _useSteam.txt /COPY:DAT /XD {PathsService.ExcludedFolders} /R:3 /W:5");
+
+            LogService.AddLog($"iRacing Local STATUS: {lmuStatus.Item1}");
+
+            log.AppendLine($"iRacing Local STATUS: {lmuStatus.Item1}");
+
+            if (!string.IsNullOrEmpty(lmuStatus.Item2))
+            {
+                LogService.AddLog($"iRacing Local ERRO: {lmuStatus.Item2}");
+
+                log.AppendLine($"iRacing Local ERRO: {lmuStatus.Item2}");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.AppendLine($"ERRO NA FUNÇÃO \"LmuBackupAsync()\": {ex.Message}");
         }
     }
 
